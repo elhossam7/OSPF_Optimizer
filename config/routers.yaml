@@ -54,7 +54,7 @@ routers:
   # --------------------------------------------------------------------------
   ABR1:
     hostname: ABR1
-    container_name: GNS3.ABR1.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 11.11.11.11
     role: ABR
     areas: [0, 1]
@@ -101,7 +101,7 @@ routers:
   # --------------------------------------------------------------------------
   ABR2:
     hostname: ABR2
-    container_name: GNS3.ABR2.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.ABR2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 22.22.22.22
     role: ABR
     areas: [0, 2]
@@ -148,7 +148,7 @@ routers:
   # --------------------------------------------------------------------------
   ABR3:
     hostname: ABR3
-    container_name: GNS3.ABR3.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.ABR3.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 33.33.33.33
     role: Backbone_Transit
     areas: [0]
@@ -177,7 +177,7 @@ routers:
   # --------------------------------------------------------------------------
   R1:
     hostname: R1
-    container_name: GNS3.R1.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 1.1.1.1
     role: Internal
     areas: [1]
@@ -203,7 +203,7 @@ routers:
   # --------------------------------------------------------------------------
   R2:
     hostname: R2
-    container_name: GNS3.R2.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.R2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 2.2.2.2
     role: Internal
     areas: [1]
@@ -229,7 +229,7 @@ routers:
   # --------------------------------------------------------------------------
   R3:
     hostname: R3
-    container_name: GNS3.R3.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.R3.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 3.3.3.3
     role: Internal
     areas: [2]
@@ -255,7 +255,7 @@ routers:
   # --------------------------------------------------------------------------
   R4:
     hostname: R4
-    container_name: GNS3.R4.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.R4.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     router_id: 4.4.4.4
     role: Internal
     areas: [2]
@@ -281,7 +281,7 @@ routers:
 # ============================================================================
 pcs:
   PC1:
-    container_name: GNS3.PC1.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.PC1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     ip: 192.168.1.10
     prefix: 24
     gateway: 192.168.1.1
@@ -289,7 +289,7 @@ pcs:
     connected_to: R1
     
   PC2:
-    container_name: GNS3.PC2.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.PC2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     ip: 192.168.2.10
     prefix: 24
     gateway: 192.168.2.1
@@ -297,7 +297,7 @@ pcs:
     connected_to: R2
     
   PC3:
-    container_name: GNS3.PC3.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.PC3.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     ip: 192.168.3.10
     prefix: 24
     gateway: 192.168.3.1
@@ -305,7 +305,7 @@ pcs:
     connected_to: R3
     
   PC4:
-    container_name: GNS3.PC4.367ce91c-77c4-417b-bccf-1caf454f05b8
+    container_name: GNS3.PC4.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
     ip: 192.168.4.10
     prefix: 24
     gateway: 192.168.4.1
