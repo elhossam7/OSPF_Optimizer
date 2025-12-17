@@ -1,0 +1,386 @@
+# Configuration des routeurs pour l'optimisation OSPF
+# Topologie GNS3: OSPF_Optimisation_lab_env
+# Routeurs: FRRouting (FRR) Docker containers
+# PCs: Alpine Linux Docker containers
+#
+# STRUCTURE OSPF:
+#   Area 0 (Backbone): ABR1 <-> ABR2, ABR1 <-> ABR3, ABR2 <-> ABR3
+#   Area 1: R1, R2 connectés à ABR1
+#   Area 2: R3, R4 connectés à ABR2
+
+# Paramètres globaux
+global:
+  connection_method: docker_exec
+  timeout: 30
+  gns3_server: "localhost"
+  gns3_port: 3080
+  gns3_project: "OSPF_Optimisation_lab_env"
+
+# Seuils pour l'ajustement des coûts
+thresholds:
+  bandwidth:
+    low: 30
+    medium: 60
+    high: 80
+    critical: 90
+  latency:
+    low: 10
+    medium: 50
+    high: 100
+    critical: 200
+  packet_loss:
+    low: 0.1
+    medium: 1
+    high: 5
+    critical: 10
+
+# Facteurs de coût OSPF
+cost_factors:
+  base_cost: 10
+  min_cost: 1
+  max_cost: 65535
+  multipliers:
+    bandwidth_weight: 0.5
+    latency_weight: 0.3
+    packet_loss_weight: 0.2
+
+# ============================================================================
+# ROUTEURS - Configuration corrigée selon la table de routage
+# ============================================================================
+
+routers:
+  # --------------------------------------------------------------------------
+  # ABR1 - Area Border Router (Area 0 <-> Area 1)
+  # --------------------------------------------------------------------------
+  ABR1:
+    hostname: ABR1
+    container_name: ABR1
+    router_id: 11.11.11.11
+    role: ABR
+    areas: [0, 1]
+    interfaces:
+      - name: eth0
+        ip: 10.1.1.1
+        prefix: 30
+        network: 10.1.1.0/30
+        area: 1
+        neighbor: R1
+        neighbor_interface: eth1
+        neighbor_ip: 10.1.1.2
+        description: "Vers R1 (Area 1)"
+      - name: eth1
+        ip: 10.0.0.1
+        prefix: 30
+        network: 10.0.0.0/30
+        area: 0
+        neighbor: ABR2
+        neighbor_interface: eth1
+        neighbor_ip: 10.0.0.2
+        description: "Vers ABR2 (Backbone Primary)"
+      - name: eth2
+        ip: 10.1.2.1
+        prefix: 30
+        network: 10.1.2.0/30
+        area: 1
+        neighbor: R2
+        neighbor_interface: eth1
+        neighbor_ip: 10.1.2.2
+        description: "Vers R2 (Area 1)"
+      - name: eth3
+        ip: 10.0.1.1
+        prefix: 30
+        network: 10.0.1.0/30
+        area: 0
+        neighbor: ABR3
+        neighbor_interface: eth0
+        neighbor_ip: 10.0.1.2
+        description: "Vers ABR3 (Backbone Backup)"
+
+  # --------------------------------------------------------------------------
+  # ABR2 - Area Border Router (Area 0 <-> Area 2)
+  # --------------------------------------------------------------------------
+  ABR2:
+    hostname: ABR2
+    container_name: ABR2
+    router_id: 22.22.22.22
+    role: ABR
+    areas: [0, 2]
+    interfaces:
+      - name: eth0
+        ip: 10.2.1.1
+        prefix: 30
+        network: 10.2.1.0/30
+        area: 2
+        neighbor: R3
+        neighbor_interface: eth1
+        neighbor_ip: 10.2.1.2
+        description: "Vers R3 (Area 2)"
+      - name: eth1
+        ip: 10.0.0.2
+        prefix: 30
+        network: 10.0.0.0/30
+        area: 0
+        neighbor: ABR1
+        neighbor_interface: eth1
+        neighbor_ip: 10.0.0.1
+        description: "Vers ABR1 (Backbone Primary)"
+      - name: eth2
+        ip: 10.2.2.1
+        prefix: 30
+        network: 10.2.2.0/30
+        area: 2
+        neighbor: R4
+        neighbor_interface: eth1
+        neighbor_ip: 10.2.2.2
+        description: "Vers R4 (Area 2)"
+      - name: eth3
+        ip: 10.0.2.2
+        prefix: 30
+        network: 10.0.2.0/30
+        area: 0
+        neighbor: ABR3
+        neighbor_interface: eth1
+        neighbor_ip: 10.0.2.1
+        description: "Vers ABR3 (Backbone Backup)"
+
+  # --------------------------------------------------------------------------
+  # ABR3 - Backbone Transit Router (Area 0 only)
+  # --------------------------------------------------------------------------
+  ABR3:
+    hostname: ABR3
+    container_name: ABR3
+    router_id: 33.33.33.33
+    role: Backbone_Transit
+    areas: [0]
+    interfaces:
+      - name: eth0
+        ip: 10.0.1.2
+        prefix: 30
+        network: 10.0.1.0/30
+        area: 0
+        neighbor: ABR1
+        neighbor_interface: eth3
+        neighbor_ip: 10.0.1.1
+        description: "Vers ABR1 (Backbone)"
+      - name: eth1
+        ip: 10.0.2.1
+        prefix: 30
+        network: 10.0.2.0/30
+        area: 0
+        neighbor: ABR2
+        neighbor_interface: eth3
+        neighbor_ip: 10.0.2.2
+        description: "Vers ABR2 (Backbone)"
+
+  # --------------------------------------------------------------------------
+  # R1 - Internal Router (Area 1)
+  # --------------------------------------------------------------------------
+  R1:
+    hostname: R1
+    container_name: R1
+    router_id: 1.1.1.1
+    role: Internal
+    areas: [1]
+    interfaces:
+      - name: eth0
+        ip: 192.168.1.1
+        prefix: 24
+        network: 192.168.1.0/24
+        area: 1
+        description: "Vers PC1 (LAN)"
+      - name: eth1
+        ip: 10.1.1.2
+        prefix: 30
+        network: 10.1.1.0/30
+        area: 1
+        neighbor: ABR1
+        neighbor_interface: eth0
+        neighbor_ip: 10.1.1.1
+        description: "Vers ABR1"
+
+  # --------------------------------------------------------------------------
+  # R2 - Internal Router (Area 1)
+  # --------------------------------------------------------------------------
+  R2:
+    hostname: R2
+    container_name: R2
+    router_id: 2.2.2.2
+    role: Internal
+    areas: [1]
+    interfaces:
+      - name: eth0
+        ip: 192.168.2.1
+        prefix: 24
+        network: 192.168.2.0/24
+        area: 1
+        description: "Vers PC2 (LAN)"
+      - name: eth1
+        ip: 10.1.2.2
+        prefix: 30
+        network: 10.1.2.0/30
+        area: 1
+        neighbor: ABR1
+        neighbor_interface: eth2
+        neighbor_ip: 10.1.2.1
+        description: "Vers ABR1"
+
+  # --------------------------------------------------------------------------
+  # R3 - Internal Router (Area 2)
+  # --------------------------------------------------------------------------
+  R3:
+    hostname: R3
+    container_name: R3
+    router_id: 3.3.3.3
+    role: Internal
+    areas: [2]
+    interfaces:
+      - name: eth0
+        ip: 192.168.3.1
+        prefix: 24
+        network: 192.168.3.0/24
+        area: 2
+        description: "Vers PC3 (LAN)"
+      - name: eth1
+        ip: 10.2.1.2
+        prefix: 30
+        network: 10.2.1.0/30
+        area: 2
+        neighbor: ABR2
+        neighbor_interface: eth0
+        neighbor_ip: 10.2.1.1
+        description: "Vers ABR2"
+
+  # --------------------------------------------------------------------------
+  # R4 - Internal Router (Area 2)
+  # --------------------------------------------------------------------------
+  R4:
+    hostname: R4
+    container_name: R4
+    router_id: 4.4.4.4
+    role: Internal
+    areas: [2]
+    interfaces:
+      - name: eth0
+        ip: 192.168.4.1
+        prefix: 24
+        network: 192.168.4.0/24
+        area: 2
+        description: "Vers PC4 (LAN)"
+      - name: eth1
+        ip: 10.2.2.2
+        prefix: 30
+        network: 10.2.2.0/30
+        area: 2
+        neighbor: ABR2
+        neighbor_interface: eth2
+        neighbor_ip: 10.2.2.1
+        description: "Vers ABR2"
+
+# ============================================================================
+# PCs Alpine Linux
+# ============================================================================
+pcs:
+  PC1:
+    container_name: PC1
+    ip: 192.168.1.10
+    prefix: 24
+    gateway: 192.168.1.1
+    interface: eth0
+    connected_to: R1
+    
+  PC2:
+    container_name: PC2
+    ip: 192.168.2.10
+    prefix: 24
+    gateway: 192.168.2.1
+    interface: eth0
+    connected_to: R2
+    
+  PC3:
+    container_name: PC3
+    ip: 192.168.3.10
+    prefix: 24
+    gateway: 192.168.3.1
+    interface: eth0
+    connected_to: R3
+    
+  PC4:
+    container_name: PC4
+    ip: 192.168.4.10
+    prefix: 24
+    gateway: 192.168.4.1
+    interface: eth0
+    connected_to: R4
+
+# ============================================================================
+# Liens à surveiller pour l'optimisation
+# ============================================================================
+monitored_links:
+  # --- Backbone (Area 0) - Liens critiques ---
+  - name: "ABR1-ABR2 (Primary)"
+    source_router: ABR1
+    source_interface: eth1
+    dest_router: ABR2
+    dest_interface: eth1
+    dest_ip: 10.0.0.2
+    bandwidth: 100
+    area: 0
+    priority: high
+    
+  - name: "ABR1-ABR3 (Backup)"
+    source_router: ABR1
+    source_interface: eth3
+    dest_router: ABR3
+    dest_interface: eth0
+    dest_ip: 10.0.1.2
+    bandwidth: 100
+    area: 0
+    priority: medium
+    
+  - name: "ABR2-ABR3 (Backup)"
+    source_router: ABR2
+    source_interface: eth3
+    dest_router: ABR3
+    dest_interface: eth1
+    dest_ip: 10.0.2.1
+    bandwidth: 100
+    area: 0
+    priority: medium
+
+  # --- Area 1 Links ---
+  - name: "ABR1-R1"
+    source_router: ABR1
+    source_interface: eth0
+    dest_router: R1
+    dest_interface: eth1
+    dest_ip: 10.1.1.2
+    bandwidth: 100
+    area: 1
+    
+  - name: "ABR1-R2"
+    source_router: ABR1
+    source_interface: eth2
+    dest_router: R2
+    dest_interface: eth1
+    dest_ip: 10.1.2.2
+    bandwidth: 100
+    area: 1
+
+  # --- Area 2 Links ---
+  - name: "ABR2-R3"
+    source_router: ABR2
+    source_interface: eth0
+    dest_router: R3
+    dest_interface: eth1
+    dest_ip: 10.2.1.2
+    bandwidth: 100
+    area: 2
+    
+  - name: "ABR2-R4"
+    source_router: ABR2
+    source_interface: eth2
+    dest_router: R4
+    dest_interface: eth1
+    dest_ip: 10.2.2.2
+    bandwidth: 100
+    area: 2

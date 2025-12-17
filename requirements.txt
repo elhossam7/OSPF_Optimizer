@@ -1,0 +1,24 @@
+# Dépendances pour OSPF Optimizer
+# Installation: pip install -r requirements.txt
+
+# Connexion SSH aux routeurs
+netmiko>=4.2.0
+
+# Parsing de configuration YAML
+PyYAML>=6.0
+
+# Interface web (optionnel)
+flask>=3.0.0
+
+# Visualisation (optionnel)
+matplotlib>=3.8.0
+
+# Scheduling avancé (optionnel)
+schedule>=1.2.0
+
+# Logging amélioré
+colorlog>=6.7.0
+
+# Tests
+pytest>=7.4.0
+pytest-cov>=4.1.0
