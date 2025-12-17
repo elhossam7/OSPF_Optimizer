@@ -12,7 +12,14 @@ from pathlib import Path
 # Ajouter le répertoire parent au path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from ospf_optimizer import OSPFOptimizer, OptimizationStrategy
+# Import conditionnel pour éviter les imports circulaires
+OptimizationStrategy = None
+
+def _lazy_import():
+    global OptimizationStrategy
+    if OptimizationStrategy is None:
+        from src.cost_calculator import OptimizationStrategy as OS
+        OptimizationStrategy = OS
 
 app = Flask(__name__)
 
@@ -342,6 +349,8 @@ DASHBOARD_HTML = """
 def init_optimizer(config_path: str = None, simulation: bool = True):
     """Initialise l'optimiseur global"""
     global optimizer
+    # Import local pour éviter les imports circulaires
+    from ospf_optimizer import OSPFOptimizer
     if config_path is None:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'routers.yaml')
     optimizer = OSPFOptimizer(config_path, simulation_mode=simulation)
@@ -367,6 +376,8 @@ def optimize():
     """Lance une optimisation"""
     if optimizer is None:
         return jsonify({'error': 'Optimizer not initialized'}), 500
+    
+    _lazy_import()
     
     strategy = request.args.get('strategy', 'composite')
     dry_run = request.args.get('dry_run', 'false').lower() == 'true'
@@ -433,6 +444,35 @@ def run_web_server(host: str = '0.0.0.0', port: int = 5000,
     init_optimizer(config_path, simulation)
     print(f"\n🌐 Dashboard disponible sur http://localhost:{port}\n")
     app.run(host=host, port=port, debug=False)
+
+
+def create_app(optimizer_instance):
+    """
+    Crée l'application Flask avec un optimiseur existant
+    
+    Args:
+        optimizer_instance: Instance de OSPFOptimizer déjà configurée
+        
+    Returns:
+        Application Flask configurée
+    """
+    global optimizer
+    optimizer = optimizer_instance
+    return app
+
+
+def run_server(flask_app, host: str = '0.0.0.0', port: int = 5000, debug: bool = False):
+    """
+    Lance le serveur Flask
+    
+    Args:
+        flask_app: Application Flask
+        host: Adresse d'écoute
+        port: Port d'écoute  
+        debug: Mode debug
+    """
+    print(f"\n🌐 Dashboard disponible sur http://localhost:{port}\n")
+    flask_app.run(host=host, port=port, debug=debug, use_reloader=False)
 
 
 if __name__ == '__main__':

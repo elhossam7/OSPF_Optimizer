@@ -382,6 +382,19 @@ Exemples d'utilisation:
         help='Mode verbose (affiche plus de détails)'
     )
     
+    parser.add_argument(
+        '--web', '-w',
+        action='store_true',
+        help='Lance le dashboard web interactif'
+    )
+    
+    parser.add_argument(
+        '--port', '-p',
+        type=int,
+        default=5000,
+        help='Port pour le serveur web (défaut: 5000)'
+    )
+    
     args = parser.parse_args()
     
     # Configurer le niveau de log
@@ -415,7 +428,13 @@ Exemples d'utilisation:
     
     # Exécuter
     try:
-        if args.once:
+        if args.web:
+            # Mode dashboard web
+            from src.web_interface import create_app, run_server
+            logger.info(f"Démarrage du dashboard web sur http://0.0.0.0:{args.port}")
+            app = create_app(optimizer)
+            run_server(app, port=args.port, debug=args.verbose)
+        elif args.once:
             optimizer.optimize_once(strategy, args.dry_run)
         else:
             optimizer.run_continuous(args.interval, strategy, args.dry_run)
