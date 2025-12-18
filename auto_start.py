@@ -170,14 +170,22 @@ def preserve_yaml_format(config_path: str, containers: dict) -> bool:
         
         for router_name, new_container_name in containers.items():
             # Pattern pour trouver et remplacer container_name pour ce routeur
-            # Cherche: container_name: GNS3.ROUTEUR.uuid ou container_name: ROUTEUR
-            pattern = rf'(container_name:\s*)(GNS3\.{router_name}\.[a-f0-9-]+|{router_name}(?:\s|$))'
+            # Cherche: container_name: "GNS3.ROUTEUR.uuid" ou container_name: GNS3.ROUTEUR.uuid
+            # Gère les guillemets optionnels autour de la valeur
+            pattern = rf'(container_name:\s*)["\']?(GNS3\.{router_name}\.[a-f0-9-]+|{router_name})["\']?(\s*(?:\n|$))'
             
             match = re.search(pattern, content)
             if match:
                 old_name = match.group(2).strip()
                 if old_name != new_container_name:
-                    content = re.sub(pattern, rf'\g<1>{new_container_name}', content)
+                    # Préserver les guillemets si présents dans l'original
+                    full_match = match.group(0)
+                    has_quotes = '"' in full_match or "'" in full_match
+                    if has_quotes:
+                        replacement = rf'\g<1>"{new_container_name}"\g<3>'
+                    else:
+                        replacement = rf'\g<1>{new_container_name}\g<3>'
+                    content = re.sub(pattern, replacement, content)
                     updates.append(f"  {router_name}: {old_name} → {new_container_name}")
                     updated = True
         
