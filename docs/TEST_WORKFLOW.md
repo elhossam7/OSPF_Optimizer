@@ -8,7 +8,7 @@ This document provides a step-by-step workflow to verify that the OSPF Optimizer
 
 Before starting the tests, ensure the following:
 
-- [ ] Ubuntu VM is running with GNS3 installed
+- [X] Ubuntu VM is running with GNS3 installed
 - [ ] GNS3 project with OSPF topology is open and started
 - [ ] Docker is running (`systemctl status docker`)
 - [ ] All router containers are running (`docker ps`)
