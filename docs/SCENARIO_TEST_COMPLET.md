@@ -160,47 +160,13 @@ GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11     frrouting:v1    Up 2 days
 
 ## 🧪 SCÉNARIO 2 : Test de Connectivité aux Routeurs
 
-### Étape 2.1 : Tester l'accès Docker à ABR1
+### Étape 2 : Tester l'accès Docker à ABR1
 
 ```bash
 docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 echo "Connexion OK"
 ```
 
 **Résultat attendu :** `Connexion OK`
-
-### Étape 2.2 : Tester l'accès vtysh sur ABR1
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show version"
-```
-
-**Résultat attendu :** Affichage de la version FRRouting
-
-### Étape 2.3 : Tester tous les routeurs
-
-```powershell
-$routers = @("ABR1", "ABR2", "ABR3", "R1", "R2", "R3", "R4")
-$uuid = "69de82ae-4d4a-48a4-a6fd-3dfa70716b11"
-
-foreach ($router in $routers) {
-  $container = "GNS3.$router.$uuid"
-  $result = docker exec $container echo "OK" 2>&1
-  Write-Host "$router : $result"
-}
-```
-
-**Résultat attendu :**
-```
-ABR1 : OK
-ABR2 : OK
-ABR3 : OK
-R1 : OK
-R2 : OK
-R3 : OK
-R4 : OK
-```
-
----
 
 ## 🧪 SCÉNARIO 3 : Vérification OSPF
 
