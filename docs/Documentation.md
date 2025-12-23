@@ -1,16 +1,7 @@
 # Rapport de Projet : OSPF Optimizer
 ## Ajustement Dynamique des Coûts OSPF basé sur les Métriques Réseau en Temps Réel
 
----
-
-**Auteur :** [Votre Nom]  
-**Établissement :** [Nom de l'Établissement]  
-**Formation :** [Nom de la Formation]  
-**Encadrant :** [Nom de l'Encadrant]  
-**Date :** Décembre 2025  
-**Version :** 2.0  
-
----
+--- 
 
 ## Résumé Exécutif
 
