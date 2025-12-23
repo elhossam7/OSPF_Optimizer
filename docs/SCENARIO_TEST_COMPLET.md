@@ -132,6 +132,7 @@ cd C:\OSPF_Optimizer
 **Linux/Mac :**
 ```bash
 cd ~/OSPF_Optimizer
+python3 -m venv venv
 source venv/bin/activate
 ```
 
