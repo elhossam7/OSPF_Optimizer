@@ -138,18 +138,18 @@ DASHBOARD_HTML = """
 </head>
 <body>
     <div class="container">
-        <h1>🌐 OSPF Optimizer Dashboard</h1>
+        <h1>OSPF Optimizer Dashboard</h1>
         
         <div class="controls">
-            <button class="btn btn-primary" onclick="optimizeOnce()">⚡ Optimiser Maintenant</button>
-            <button class="btn btn-success" onclick="startContinuous()">▶ Démarrer Continu</button>
-            <button class="btn btn-danger" onclick="stopOptimizer()">⏹ Arrêter</button>
-            <button class="btn btn-primary" onclick="refreshData()">🔄 Rafraîchir</button>
+            <button class="btn btn-primary" onclick="optimizeOnce()">Optimiser Maintenant</button>
+            <button class="btn btn-success" onclick="startContinuous()">Démarrer Continu</button>
+            <button class="btn btn-danger" onclick="stopOptimizer()">Arrêter</button>
+            <button class="btn btn-primary" onclick="refreshData()">Rafraîchir</button>
         </div>
         
         <div class="grid">
             <div class="card">
-                <h2>📊 État du Système</h2>
+                <h2>État du Système</h2>
                 <div id="status-content">
                     <div class="metric">
                         <span>État</span>
@@ -179,7 +179,7 @@ DASHBOARD_HTML = """
             </div>
             
             <div class="card">
-                <h2>📈 Dernière Optimisation</h2>
+                <h2>Dernière Optimisation</h2>
                 <div id="last-optimization">
                     <p style="color: #888;">Aucune optimisation effectuée</p>
                 </div>
@@ -187,7 +187,7 @@ DASHBOARD_HTML = """
         </div>
         
         <div class="card" style="margin-top: 20px;">
-            <h2>🔗 État des Liens</h2>
+            <h2>État des Liens</h2>
             <table class="link-table">
                 <thead>
                     <tr>
@@ -206,7 +206,7 @@ DASHBOARD_HTML = """
         </div>
         
         <div class="card" style="margin-top: 20px;">
-            <h2>📝 Logs</h2>
+            <h2>Logs</h2>
             <div class="log-container" id="logs">
                 <div class="log-entry log-info">Dashboard initialisé</div>
             </div>
@@ -241,7 +241,7 @@ DASHBOARD_HTML = """
                     `<span class="status-indicator ${data.running ? 'status-running' : 'status-stopped'}"></span>
                      ${data.running ? 'En cours' : 'Arrêté'}`;
                 document.getElementById('status-mode').textContent = 
-                    data.simulation_mode ? '🔬 Simulation' : '🔧 Production';
+                    data.simulation_mode ? 'Simulation' : 'Production';
                 document.getElementById('status-routers').textContent = 
                     data.configured_routers ? data.configured_routers.length : 0;
                 document.getElementById('status-links').textContent = data.monitored_links || 0;
@@ -293,7 +293,7 @@ DASHBOARD_HTML = """
                     <td>${result.metrics.latency_ms.toFixed(1)} ms</td>
                     <td>${result.metrics.packet_loss_percent.toFixed(2)}%</td>
                     <td>${result.current}</td>
-                    <td style="color: ${result.will_update ? '#00ff88' : 'inherit'}">${result.calculated} ${result.will_update ? '⚡' : ''}</td>
+                    <td style="color: ${result.will_update ? '#00ff88' : 'inherit'}">${result.calculated}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -442,7 +442,7 @@ def run_web_server(host: str = '0.0.0.0', port: int = 5000,
         simulation: Mode simulation
     """
     init_optimizer(config_path, simulation)
-    print(f"\n🌐 Dashboard disponible sur http://localhost:{port}\n")
+    print(f"\nDashboard disponible sur http://localhost:{port}\n")
     app.run(host=host, port=port, debug=False)
 
 
@@ -471,7 +471,7 @@ def run_server(flask_app, host: str = '0.0.0.0', port: int = 5000, debug: bool =
         port: Port d'écoute  
         debug: Mode debug
     """
-    print(f"\n🌐 Dashboard disponible sur http://localhost:{port}\n")
+    print(f"\nDashboard disponible sur http://localhost:{port}\n")
     flask_app.run(host=host, port=port, debug=debug, use_reloader=False)
 
 

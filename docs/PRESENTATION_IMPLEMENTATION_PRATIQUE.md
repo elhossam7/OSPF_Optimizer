@@ -3,22 +3,22 @@
 
 ---
 
-# 🎯 Slide 1 : Introduction au Projet
+# Slide 1 : Introduction au Projet
 
 ## Objectif Principal
 **Optimiser automatiquement les coûts OSPF** en fonction des conditions réseau en temps réel
 
 ### Métriques surveillées :
-- 📊 **Utilisation de la bande passante** (%)
-- ⏱️ **Latence** (ms)
-- 📉 **Perte de paquets** (%)
+- **Utilisation de la bande passante** (%)
+- **Latence** (ms)
+- **Perte de paquets** (%)
 
 ### Problème résolu :
 > Les coûts OSPF traditionnels sont **statiques** alors que le trafic réseau est **dynamique**
 
 ---
 
-# 🏗️ Slide 2 : Architecture Globale
+# Slide 2 : Architecture Globale
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -27,7 +27,7 @@
 │                                                                  │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐     │
 │   │   Collecteur │    │  Calculateur │    │   Interface  │     │
-│   │  de Métriques│───▶│   de Coûts   │───▶│     Web      │     │
+│   │  de Métriques│---->│   de Coûts   │---->│     Web      │     │
 │   └──────────────┘    └──────────────┘    └──────────────┘     │
 │          │                   │                                   │
 │          ▼                   ▼                                   │
@@ -59,7 +59,7 @@
 
 ---
 
-# 🛠️ Slide 3 : Stack Technologique
+# Slide 3 : Stack Technologique
 
 | Composant | Technologie | Rôle |
 |-----------|-------------|------|
@@ -72,30 +72,30 @@
 
 ---
 
-# 📁 Slide 4 : Structure du Projet
+# Slide 4 : Structure du Projet
 
 ```
 OSPF_Optimizer/
 │
-├── 🚀 ospf_optimizer.py       # Script principal d'orchestration
-├── 🔄 auto_start.py           # Démarrage automatique avec détection
+├── ospf_optimizer.py          # Script principal d'orchestration
+├── auto_start.py              # Démarrage automatique avec détection
 │
-├── 📁 src/                    # Modules sources
+├── src/                       # Modules sources
 │   ├── router_connection.py   # Connexion aux routeurs (Docker/SSH)
 │   ├── metrics_collector.py   # Collecte des métriques réseau
 │   ├── cost_calculator.py     # Algorithmes de calcul des coûts
 │   └── web_interface.py       # API REST + Dashboard
 │
-├── 📁 config/
+├── config/
 │   └── routers.yaml          # Configuration des routeurs
 │
-├── 📁 docs/                   # Documentation
-└── 📁 scripts/                # Scripts utilitaires
+├── docs/                      # Documentation
+└── scripts/                   # Scripts utilitaires
 ```
 
 ---
 
-# 🔌 Slide 5 : Module de Connexion (`router_connection.py`)
+# Slide 5 : Module de Connexion (`router_connection.py`)
 
 ## Fonctionnalités principales :
 
@@ -131,7 +131,7 @@ def set_ospf_cost(self, router_name: str, interface: str, cost: int):
 
 ---
 
-# 📊 Slide 6 : Collecteur de Métriques (`metrics_collector.py`)
+# Slide 6 : Collecteur de Métriques (`metrics_collector.py`)
 
 ## Données collectées :
 
@@ -193,7 +193,7 @@ cost_factors:
 
 ---
 
-# 📈 Slide 8 : Seuils de Déclenchement
+# Slide 8 : Seuils de Déclenchement
 
 ## Configuration des seuils (`routers.yaml`) :
 
@@ -214,23 +214,23 @@ thresholds:
 
 | Niveau | Latence (ms) | Bande Passante (%) | Perte (%) |
 |--------|--------------|-------------------|-----------|
-| 🟢 Normal | < 10 | < 30 | < 0.1 |
-| 🟡 Medium | 10-50 | 30-60 | 0.1-1 |
-| 🟠 High | 50-100 | 60-80 | 1-5 |
-| 🔴 Critical | > 100 | > 80 | > 5 |
+| Normal | < 10 | < 30 | < 0.1 |
+| Medium | 10-50 | 30-60 | 0.1-1 |
+| High | 50-100 | 60-80 | 1-5 |
+| Critical | > 100 | > 80 | > 5 |
 
 ---
 
-# 🖥️ Slide 9 : Interface Web (`web_interface.py`)
+# Slide 9 : Interface Web (`web_interface.py`)
 
 ## Dashboard en temps réel :
 
 ### Fonctionnalités :
-- ✅ Visualisation de l'état des routeurs
-- ✅ Métriques en temps réel par lien
-- ✅ Historique des optimisations
-- ✅ Contrôle Start/Stop
-- ✅ Mode simulation
+- Visualisation de l'état des routeurs
+- Métriques en temps réel par lien
+- Historique des optimisations
+- Contrôle Start/Stop
+- Mode simulation
 
 ### API REST disponible :
 
@@ -246,7 +246,7 @@ thresholds:
 
 ---
 
-# ⚙️ Slide 10 : Configuration des Routeurs
+# Slide 10 : Configuration des Routeurs
 
 ## Fichier `config/routers.yaml` :
 
@@ -279,7 +279,7 @@ routers:
 
 ---
 
-# 🚀 Slide 11 : Démarrage Automatique (`auto_start.py`)
+# Slide 11 : Démarrage Automatique (`auto_start.py`)
 
 ## Fonctionnalités :
 
@@ -316,7 +316,7 @@ python auto_start.py --detect-only
 
 ---
 
-# 🔄 Slide 12 : Cycle d'Optimisation
+# Slide 12 : Cycle d'Optimisation
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -397,12 +397,12 @@ python auto_start.py --web --port 8080
 
 ## Étape 4 : Accès au Dashboard
 ```
-🌐 http://localhost:8080
+http://localhost:8080
 ```
 
 ---
 
-# 🔍 Slide 14 : Commandes de Vérification FRRouting
+# Slide 14 : Commandes de Vérification FRRouting
 
 ## Vérifier l'état OSPF :
 
@@ -433,7 +433,7 @@ docker exec R1 vtysh -c "
 
 ---
 
-# 📊 Slide 15 : Exemple de Sortie Console
+# Slide 15 : Exemple de Sortie Console
 
 ```
 ╔════════════════════════════════════════════════════════════════╗
@@ -441,28 +441,28 @@ docker exec R1 vtysh -c "
 ║              Ajustement Dynamique des Coûts                     ║
 ╚════════════════════════════════════════════════════════════════╝
 
-✅ Configuration chargée depuis config/routers.yaml
-✅ 7 routeurs configurés: ABR1, ABR2, ABR3, R1, R2, R3, R4
+Configuration chargée depuis config/routers.yaml
+7 routeurs configurés: ABR1, ABR2, ABR3, R1, R2, R3, R4
 
-📊 Collecte des métriques...
+Collecte des métriques...
   ABR1-eth1 → ABR2-eth1: Latence=12ms, Perte=0%, BW=25%
   ABR1-eth3 → ABR3-eth0: Latence=8ms, Perte=0%, BW=18%
   ABR2-eth3 → ABR3-eth1: Latence=45ms, Perte=2%, BW=72%
 
-⚠️  Lien ABR2-ABR3: Latence élevée détectée (45ms > 30ms)
+Attention: Lien ABR2-ABR3: Latence élevée détectée (45ms > 30ms)
     Coût actuel: 15 → Nouveau coût recommandé: 35
 
-🔧 Application des modifications...
+Application des modifications...
   ✓ ABR2/eth3: Coût modifié 15 → 35
   ✓ ABR3/eth1: Coût modifié 15 → 35
 
-📈 Optimisation #42 terminée en 2.3s
+Optimisation #42 terminée en 2.3s
    Prochaine analyse dans 30s...
 ```
 
 ---
 
-# 🧪 Slide 16 : Scénarios de Test
+# Slide 16 : Scénarios de Test
 
 ## Test 1 : Simulation de congestion
 ```bash
@@ -487,7 +487,7 @@ docker exec ABR2 tc qdisc add dev eth3 root netem loss 5%
 
 ---
 
-# 📉 Slide 17 : Anti-Oscillation
+# Slide 17 : Anti-Oscillation
 
 ## Problème des oscillations :
 Si les coûts changent trop fréquemment, le réseau devient instable
@@ -517,15 +517,15 @@ if is_oscillating(cost_history):
 
 ---
 
-# 🎨 Slide 18 : Interface Web - Aperçu
+# Slide 18 : Interface Web - Aperçu
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  🌐 OSPF OPTIMIZER DASHBOARD                    [Start][Stop] │
+│  OSPF OPTIMIZER DASHBOARD                      [Start][Stop] │
 ├──────────────────────────────────────────────────────────────┤
 │                                                               │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌───────────────┐ │
-│  │ 🟢 STATUS       │  │ 📊 MÉTRIQUES    │  │ ⚙️ CONFIG     │ │
+│  │ STATUS          │  │ MÉTRIQUES       │  │ CONFIG       │ │
 │  │ Running         │  │ 7 Routeurs      │  │ Latency Mode  │ │
 │  │ Uptime: 2h 34m  │  │ 12 Liens        │  │ Interval: 30s │ │
 │  │ Optim: 287      │  │ Alerts: 2       │  │ Min Cost: 1   │ │
@@ -536,13 +536,13 @@ if is_oscillating(cost_history):
 │  ├──────────┬──────────┬──────────┬──────────┬────────────┤ │
 │  │ Lien     │ Latence  │ Perte    │ BW Usage │ Coût OSPF  │ │
 │  ├──────────┼──────────┼──────────┼──────────┼────────────┤ │
-│  │ ABR1-ABR2│ 12ms 🟢  │ 0.0% 🟢  │ 25% 🟢   │ 15         │ │
-│  │ ABR1-ABR3│ 8ms 🟢   │ 0.0% 🟢  │ 18% 🟢   │ 15         │ │
-│  │ ABR2-ABR3│ 45ms 🟠  │ 2.0% 🟡  │ 72% 🟠   │ 35 ⬆️      │ │
+│  │ ABR1-ABR2│ 12ms OK  │ 0.0% OK  │ 25% OK   │ 15         │ │
+│  │ ABR1-ABR3│ 8ms OK   │ 0.0% OK  │ 18% OK   │ 15         │ │
+│  │ ABR2-ABR3│ 45ms High│ 2.0% Med │ 72% High │ 35 up      │ │
 │  └──────────┴──────────┴──────────┴──────────┴────────────┘ │
 │                                                               │
 │  ┌─────────────────────────────────────────────────────────┐ │
-│  │ 📜 HISTORIQUE DES MODIFICATIONS                         │ │
+│  │ HISTORIQUE DES MODIFICATIONS                            │ │
 │  │ 14:32:15 - ABR2/eth3: 15 → 35 (Latence: 45ms)          │ │
 │  │ 14:30:45 - ABR3/eth1: 15 → 35 (Latence: 45ms)          │ │
 │  │ 14:25:12 - ABR1/eth1: 20 → 15 (Recovery)               │ │
@@ -553,7 +553,7 @@ if is_oscillating(cost_history):
 
 ---
 
-# ✅ Slide 19 : Points Forts de l'Implémentation
+# Slide 19 : Points Forts de l'Implémentation
 
 | Aspect | Avantage |
 |--------|----------|
@@ -568,31 +568,31 @@ if is_oscillating(cost_history):
 
 ---
 
-# 🔮 Slide 20 : Perspectives d'Amélioration
+# Slide 20 : Perspectives d'Amélioration
 
 ## Court terme :
-- 📱 Application mobile pour le monitoring
-- 📧 Alertes email/SMS en cas d'anomalie
-- 📊 Graphiques historiques avancés
+- Application mobile pour le monitoring
+- Alertes email/SMS en cas d'anomalie
+- Graphiques historiques avancés
 
 ## Moyen terme :
-- 🤖 Machine Learning pour prédiction des congestions
-- 🔄 Support multi-protocoles (IS-IS, EIGRP)
-- 🌐 Interface multi-sites
+- Machine Learning pour prédiction des congestions
+- Support multi-protocoles (IS-IS, EIGRP)
+- Interface multi-sites
 
 ## Long terme :
-- ☁️ Intégration cloud (AWS, Azure)
-- 🔗 API pour orchestrateurs SDN
-- 🧠 Optimisation basée sur l'IA
+- Intégration cloud (AWS, Azure)
+- API pour orchestrateurs SDN
+- Optimisation basée sur l'IA
 
 ---
 
-# 📚 Slide 21 : Ressources et Documentation
+# Slide 21 : Ressources et Documentation
 
 ## Fichiers du projet :
-- 📖 `README.md` - Guide de démarrage rapide
-- 📋 `docs/RAPPORT_PROJET_OSPF_OPTIMIZER.md` - Rapport complet
-- 🧪 `docs/TEST_WORKFLOW.md` - Procédures de test
+- `README.md` - Guide de démarrage rapide
+- `docs/RAPPORT_PROJET_OSPF_OPTIMIZER.md` - Rapport complet
+- `docs/TEST_WORKFLOW.md` - Procédures de test
 
 ## Commandes essentielles :
 
@@ -618,41 +618,35 @@ tail -f ospf_optimizer.log
 
 ---
 
-# 🎓 Slide 22 : Conclusion
+# Slide 22 : Conclusion
 
 ## Ce que nous avons implémenté :
 
-✅ **Collecte de métriques** en temps réel via Docker exec
-
-✅ **Calcul intelligent** des coûts OSPF selon plusieurs stratégies
-
-✅ **Application automatique** des modifications via vtysh
-
-✅ **Dashboard web** pour le monitoring et le contrôle
-
-✅ **Détection automatique** des routeurs GNS3
-
-✅ **Mode simulation** pour les tests sécurisés
-
-✅ **Anti-oscillation** pour la stabilité réseau
+- **Collecte de métriques** en temps réel via Docker exec
+- **Calcul intelligent** des coûts OSPF selon plusieurs stratégies
+- **Application automatique** des modifications via vtysh
+- **Dashboard web** pour le monitoring et le contrôle
+- **Détection automatique** des routeurs GNS3
+- **Mode simulation** pour les tests sécurisés
+- **Anti-oscillation** pour la stabilité réseau
 
 ---
 
-## 🙏 Merci de votre attention !
+## Merci de votre attention !
 
 ### Questions ?
 
 ```
 ┌────────────────────────────────────────┐
-│  📧 Contact: [Votre Email]             │
-│  🔗 GitHub: [URL du Repo]              │
-│  📅 Date: Décembre 2025                │
+│  Contact: [Votre Email]                │
+│  GitHub: [URL du Repo]                 │
+│  Date: Décembre 2025                   │
 └────────────────────────────────────────┘
 ```
 
 ---
 
-# 📎 Annexes
+# Annexes
 
 ## A. Schéma de la Topologie Réseau
 

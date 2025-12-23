@@ -4,7 +4,7 @@ Utilisez ce prompt avec un agent IA (ChatGPT, Claude, Copilot, etc.) pour géné
 
 ---
 
-## 🎯 PROMPT À COPIER
+## PROMPT À COPIER
 
 ```
 Génère une présentation PowerPoint professionnelle et détaillée (15-20 slides) pour un projet de fin d'études intitulé "OSPF Optimizer" - un outil d'optimisation dynamique des coûts OSPF basé sur les métriques réseau en temps réel.
@@ -161,7 +161,7 @@ cost = base_cost × (bw_factor × 0.5 + latency_factor × 0.3 + loss_factor × 0
 
 ---
 
-## 📋 INFORMATIONS COMPLÉMENTAIRES À FOURNIR
+## INFORMATIONS COMPLÉMENTAIRES À FOURNIR
 
 Ajoutez ces informations personnelles au prompt :
 
@@ -228,7 +228,7 @@ docker exec GNS3.ABR1.xxx vtysh -c "show ip ospf interface"
 
 ---
 
-## 📚 RÉFÉRENCES SUGGÉRÉES
+## RÉFÉRENCES SUGGÉRÉES
 
 - RFC 2328 - OSPF Version 2
 - FRRouting Documentation (https://docs.frrouting.org)

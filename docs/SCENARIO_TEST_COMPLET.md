@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Informations du Projet
+## Informations du Projet
 
 | Élément | Valeur |
 |---------|--------|
@@ -15,7 +15,7 @@
 
 ---
 
-## 🖧 Topologie du Réseau
+## Topologie du Réseau
 
 ```
                ┌───────────────┐
@@ -52,7 +52,7 @@
 
 ---
 
-## 📊 Table d'Adressage Complète
+## Table d'Adressage Complète
 
 ### Routeurs ABR (Area Border Routers)
 
@@ -80,7 +80,7 @@
 
 ---
 
-## 🔗 Liens Surveillés
+## Liens Surveillés
 
 | Nom du Lien | Source | Interface | Destination | Interface | IP Destination |
 |-------------|--------|-----------|-------------|-----------|----------------|
@@ -94,7 +94,7 @@
 
 ---
 
-## ⚙️ Configuration des Seuils
+## Configuration des Seuils
 
 ```yaml
 thresholds:
@@ -119,7 +119,7 @@ cost_factors:
 
 ---
 
-## 🧪 SCÉNARIO 1 : Vérification de l'Environnement
+## SCÉNARIO 1 : Vérification de l'Environnement
 
 ### Étape 1.1 : Activer l'environnement virtuel
 
@@ -158,7 +158,7 @@ GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11     frrouting:v1    Up 2 days
 
 ---
 
-## 🧪 SCÉNARIO 2 : Test de Connectivité aux Routeurs
+## SCÉNARIO 2 : Test de Connectivité aux Routeurs
 
 ### Étape 2 : Tester l'accès Docker à ABR1
 
@@ -168,7 +168,7 @@ docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 echo "Connexion OK"
 
 **Résultat attendu :** `Connexion OK`
 
-## 🧪 SCÉNARIO 3 : Vérification OSPF
+## SCÉNARIO 3 : Vérification OSPF
 
 ### Étape 3.1 : Vérifier les voisins OSPF sur ABR1
 
@@ -258,7 +258,7 @@ O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1, 01:23:25
 
 ---
 
-## 🧪 SCÉNARIO 4 : Test de Latence entre Routeurs
+## SCÉNARIO 4 : Test de Latence entre Routeurs
 
 ### Étape 4.1 : Ping ABR1 vers ABR2 (10.0.0.2)
 
@@ -306,7 +306,7 @@ docker exec GNS3.ABR2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 5 10.2.1.2
 
 ---
 
-## 🧪 SCÉNARIO 5 : Lancement de l'Optimiseur
+## SCÉNARIO 5 : Lancement de l'Optimiseur
 
 ### Étape 5.1 : Mode Dry-Run (Sans modification)
 
@@ -322,9 +322,9 @@ python auto_start.py --dry-run --verbose
 ║              Démarrage Automatique                              ║
 ╚════════════════════════════════════════════════════════════════╝
 
-🔍 Détection des conteneurs Docker...
+Détection des conteneurs Docker...
 
-✅ Conteneurs détectés:
+Conteneurs détectés:
   ABR1: GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
   ABR2: GNS3.ABR2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
   ABR3: GNS3.ABR3.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
@@ -333,9 +333,9 @@ python auto_start.py --dry-run --verbose
   R3:   GNS3.R3.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
   R4:   GNS3.R4.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
 
-✅ Configuration déjà à jour
+Configuration déjà à jour
 
-📊 Collecte des métriques...
+Collecte des métriques...
   ABR1-ABR2: Latence=0.5ms, Perte=0%, BW=12%
   ABR1-ABR3: Latence=0.4ms, Perte=0%, BW=8%
   ABR2-ABR3: Latence=0.6ms, Perte=0%, BW=15%
@@ -344,7 +344,7 @@ python auto_start.py --dry-run --verbose
   ABR2-R3:   Latence=0.4ms, Perte=0%, BW=7%
   ABR2-R4:   Latence=0.4ms, Perte=0%, BW=4%
 
-📈 Analyse des coûts:
+Analyse des coûts:
   Tous les liens sont dans les seuils normaux
   Aucune modification nécessaire
 
@@ -359,7 +359,7 @@ python auto_start.py --detect-only
 
 **Résultat attendu :**
 ```
-🔍 Mode détection uniquement
+Mode détection uniquement
 
 Conteneurs FRRouting détectés:
   ABR1 → GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11
@@ -385,12 +385,12 @@ python auto_start.py --web --port 8080
 ║                     OSPF OPTIMIZER                              ║
 ╚════════════════════════════════════════════════════════════════╝
 
-✅ 7 routeurs configurés
-✅ 7 liens surveillés
+7 routeurs configurés
+7 liens surveillés
 
-🌐 Dashboard web démarré sur http://localhost:8080
+Dashboard web démarré sur http://localhost:8080
 
-📊 Cycle d'optimisation #1...
+Cycle d'optimisation #1...
   Collecte des métriques: OK
   Analyse: Tous les liens stables
   Prochaine analyse dans 30s
@@ -402,7 +402,7 @@ python auto_start.py --web --port 8080
 
 ---
 
-## 🧪 SCÉNARIO 6 : Simulation de Congestion
+## SCÉNARIO 6 : Simulation de Congestion
 
 ### Étape 6.1 : Ajouter de la latence sur le lien ABR1-ABR2
 
@@ -423,10 +423,10 @@ docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 5 10.0.0.2
 L'optimiseur devrait détecter la latence élevée (100ms > 50ms) et augmenter le coût :
 
 ```
-⚠️  Lien ABR1-ABR2: Latence élevée détectée (100ms > 50ms)
+Attention: Lien ABR1-ABR2: Latence élevée détectée (100ms > 50ms)
   Coût actuel: 15 → Nouveau coût recommandé: 115
 
-🔧 Application des modifications...
+Application des modifications...
   ✓ ABR1/eth1: Coût modifié 15 → 115
   ✓ ABR2/eth1: Coût modifié 15 → 115
 ```
@@ -458,13 +458,13 @@ docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth1
 Après quelques cycles, l'optimiseur devrait détecter le retour à la normale et réduire le coût :
 
 ```
-✅ Lien ABR1-ABR2: Latence normale (0.5ms < 30ms)
+Lien ABR1-ABR2: Latence normale (0.5ms < 30ms)
    Coût actuel: 115 → Nouveau coût: 15 (Recovery)
 ```
 
 ---
 
-## 🧪 SCÉNARIO 7 : Simulation de Perte de Paquets
+## SCÉNARIO 7 : Simulation de Perte de Paquets
 
 ### Étape 7.1 : Ajouter 10% de perte sur ABR2-ABR3
 
@@ -488,7 +488,7 @@ docker exec GNS3.ABR2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth3
 
 ---
 
-## 🧪 SCÉNARIO 8 : Modification Manuelle des Coûts OSPF
+## SCÉNARIO 8 : Modification Manuelle des Coûts OSPF
 
 ### Étape 8.1 : Augmenter le coût sur ABR1/eth1
 
@@ -526,7 +526,7 @@ write memory
 
 ---
 
-## 🧪 SCÉNARIO 9 : Mode Simulation (Données Simulées)
+## SCÉNARIO 9 : Mode Simulation (Données Simulées)
 
 ### Étape 9.1 : Exécution unique en mode simulation
 
@@ -541,15 +541,15 @@ python ospf_optimizer.py --simulation --once --verbose
 ║           OSPF OPTIMIZER - MODE SIMULATION                      ║
 ╚════════════════════════════════════════════════════════════════╝
 
-⚠️  Mode simulation activé - Pas de connexion réelle
+Attention: Mode simulation activé - Pas de connexion réelle
 
-📊 Métriques simulées:
+Métriques simulées:
   ABR1-ABR2: Latence=12ms (simulé), Perte=0.5%, BW=45%
   ABR1-ABR3: Latence=8ms (simulé), Perte=0.1%, BW=32%
   ABR2-ABR3: Latence=65ms (simulé), Perte=2.3%, BW=78%
   ...
 
-⚠️  Liens nécessitant une optimisation:
+Attention: Liens nécessitant une optimisation:
   ABR2-ABR3: Latence élevée (65ms > 50ms)
   Coût recommandé: 15 → 80
 
@@ -558,7 +558,7 @@ python ospf_optimizer.py --simulation --once --verbose
 
 ---
 
-## ✅ Résumé des Commandes Essentielles
+## Résumé des Commandes Essentielles
 
 ### Démarrage
 
@@ -588,7 +588,7 @@ python ospf_optimizer.py --simulation --once --verbose
 
 ---
 
-## 📋 Checklist de Validation
+## Checklist de Validation
 
 - [ ] Environnement virtuel activé
 - [ ] 7 conteneurs FRR en cours d'exécution

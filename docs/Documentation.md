@@ -301,23 +301,23 @@ Développer un système d'optimisation dynamique des coûts OSPF capable de :
 
 #### 1.5.1 Périmètre Inclus
 
-- ✅ Réseau OSPF multi-zones (Area 0, 1, 2)
-- ✅ 7 routeurs FRRouting en conteneurs Docker
-- ✅ 4 hôtes finaux (PCs) pour les tests
-- ✅ Environnement de simulation GNS3
-- ✅ Collecte de métriques via ping et parsing système
-- ✅ Application automatique des coûts via vtysh
-- ✅ Dashboard web de monitoring
-- ✅ 3 stratégies d'optimisation (composite, bande passante, latence)
+- [x] Réseau OSPF multi-zones (Area 0, 1, 2)
+- [x] 7 routeurs FRRouting en conteneurs Docker
+- [x] 4 hôtes finaux (PCs) pour les tests
+- [x] Environnement de simulation GNS3
+- [x] Collecte de métriques via ping et parsing système
+- [x] Application automatique des coûts via vtysh
+- [x] Dashboard web de monitoring
+- [x] 3 stratégies d'optimisation (composite, bande passante, latence)
 
 #### 1.5.2 Périmètre Exclu
 
-- ❌ Support OSPFv3 (IPv6)
-- ❌ Intégration avec des équipements physiques
-- ❌ Support d'autres protocoles de routage (IS-IS, EIGRP, BGP)
-- ❌ Haute disponibilité du système d'optimisation
-- ❌ Authentification OSPF
-- ❌ Support des VRF
+- [ ] Support OSPFv3 (IPv6)
+- [ ] Intégration avec des équipements physiques
+- [ ] Support d'autres protocoles de routage (IS-IS, EIGRP, BGP)
+- [ ] Haute disponibilité du système d'optimisation
+- [ ] Authentification OSPF
+- [ ] Support des VRF
 
 #### 1.5.3 Contraintes Techniques
 
@@ -1549,11 +1549,11 @@ L'architecture modulaire basée sur Python et Docker s'est révélée robuste et
 
 ### 10.2 Objectifs Atteints
 
-- ✅ Infrastructure OSPF multi-zones fonctionnelle.
-- ✅ Collecte fiable des métriques (Latence, Perte, Bande passante).
-- ✅ Algorithme d'optimisation composite implémenté.
-- ✅ Application automatique des coûts sans interruption de service.
-- ✅ Interface de visualisation opérationnelle.
+- [x] Infrastructure OSPF multi-zones fonctionnelle.
+- [x] Collecte fiable des métriques (Latence, Perte, Bande passante).
+- [x] Algorithme d'optimisation composite implémenté.
+- [x] Application automatique des coûts sans interruption de service.
+- [x] Interface de visualisation opérationnelle.
 
 ### 10.3 Difficultés Rencontrées et Solutions
 

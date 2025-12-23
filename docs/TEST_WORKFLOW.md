@@ -100,9 +100,9 @@ python3 auto_start.py --dry-run --verbose
 ```
 
 **Expected:**
-- ✅ Containers detected
-- ✅ Configuration file updated
-- ✅ No errors
+- Containers detected
+- Configuration file updated
+- No errors
 
 **Success Criteria:**
 ```
@@ -225,13 +225,13 @@ with open('config/routers.yaml', 'r') as f:
 
 conn = RouterConnection(config)
 if conn.test_connections():
-    print('✅ Router connections: OK')
+  print('Router connections: OK')
 else:
-    print('❌ Router connections: FAILED')
+  print('Router connections: FAILED')
 "
 ```
 
-**Expected:** `✅ Router connections: OK`
+**Expected:** `Router connections: OK`
 
 ---
 
@@ -267,9 +267,9 @@ Links stable: 7
 ```
 
 **Success Criteria:**
-- ✅ No Python errors
-- ✅ Metrics collected for all links
-- ✅ Summary displayed
+- No Python errors
+- Metrics collected for all links
+- Summary displayed
 
 ### 6.2 Test with Simulated Data
 
@@ -283,7 +283,7 @@ python3 ospf_optimizer.py --config config/routers.yaml --once --dry-run --simula
 
 ## Step 7: Live Optimization Test
 
-⚠️ **Warning:** This will modify OSPF costs on the routers!
+Warning: This will modify OSPF costs on the routers!
 
 ### 7.1 Run Single Live Optimization
 
@@ -433,26 +433,26 @@ source venv/bin/activate
 echo -e "\n[TEST 1] Docker Containers"
 count=$(docker ps --format "{{.Names}}" | grep -E "ABR|\.R[1-4]\." | wc -l)
 if [ "$count" -ge 7 ]; then
-    echo "✅ PASS: $count router containers found"
+  echo "PASS: $count router containers found"
 else
-    echo "❌ FAIL: Only $count containers found (expected 7+)"
+  echo "FAIL: Only $count containers found (expected 7+)"
 fi
 
 # Test 2: Check OSPF on ABR1
 echo -e "\n[TEST 2] OSPF Status"
 container=$(docker ps --format "{{.Names}}" | grep "ABR1" | head -1)
 if docker exec $container vtysh -c "show ip ospf" | grep -q "Router ID"; then
-    echo "✅ PASS: OSPF is running"
+  echo "PASS: OSPF is running"
 else
-    echo "❌ FAIL: OSPF not running"
+  echo "FAIL: OSPF not running"
 fi
 
 # Test 3: Dry-run optimization
 echo -e "\n[TEST 3] Dry-Run Optimization"
 if python3 ospf_optimizer.py --config config/routers.yaml --once --dry-run 2>&1 | grep -q "Links monitored"; then
-    echo "✅ PASS: Optimization executed"
+  echo "PASS: Optimization executed"
 else
-    echo "❌ FAIL: Optimization failed"
+  echo "FAIL: Optimization failed"
 fi
 
 # Test 4: Web interface
@@ -461,9 +461,9 @@ python3 ospf_optimizer.py --config config/routers.yaml --web --port 8888 &
 pid=$!
 sleep 3
 if curl -s http://localhost:8888/api/status | grep -q "status"; then
-    echo "✅ PASS: Web API responding"
+  echo "PASS: Web API responding"
 else
-    echo "❌ FAIL: Web API not responding"
+  echo "FAIL: Web API not responding"
 fi
 kill $pid 2>/dev/null
 
@@ -921,9 +921,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-log_pass() { echo -e "${GREEN}✅ PASS:${NC} $1"; }
-log_fail() { echo -e "${RED}❌ FAIL:${NC} $1"; }
-log_info() { echo -e "${YELLOW}ℹ️  INFO:${NC} $1"; }
+log_pass() { echo -e "${GREEN}PASS:${NC} $1"; }
+log_fail() { echo -e "${RED}FAIL:${NC} $1"; }
+log_info() { echo -e "${YELLOW}INFO:${NC} $1"; }
 
 # Get container names
 get_container() {

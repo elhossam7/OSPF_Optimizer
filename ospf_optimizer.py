@@ -268,12 +268,12 @@ class OSPFOptimizer:
                 print(f"    Raison: {update['reason']}")
             print()
         else:
-            print("\n✓ Aucun changement nécessaire\n")
+            print("\nAucun changement nécessaire\n")
             
         print("ÉTAT DES LIENS:")
         print("-"*60)
         for result in summary['all_results']:
-            status = "⚡" if result['will_update'] else "✓"
+            status = "UPDATE" if result['will_update'] else "OK"
             metrics = result['metrics']
             print(f"  {status} {result['link']}:")
             print(f"      Coût: {result['current']} → {result['calculated']}")

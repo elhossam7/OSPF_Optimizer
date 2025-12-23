@@ -18,29 +18,29 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo "============================================================"
-echo -e "${BLUE}🔍 OSPF Optimizer - Démarrage Automatique${NC}"
+echo -e "${BLUE}OSPF Optimizer - Démarrage Automatique${NC}"
 echo "============================================================"
 
 # Vérifier que Docker est disponible
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}❌ Docker n'est pas installé ou pas dans le PATH${NC}"
+    echo -e "${RED}Docker n'est pas installé ou pas dans le PATH${NC}"
     exit 1
 fi
 
 # Vérifier que Python est disponible
 if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python3 n'est pas installé${NC}"
+    echo -e "${RED}Python3 n'est pas installé${NC}"
     exit 1
 fi
 
 # Activer l'environnement virtuel si présent
 if [ -d "$VENV_PATH" ]; then
-    echo -e "${BLUE}📦 Activation de l'environnement virtuel...${NC}"
+    echo -e "${BLUE}Activation de l'environnement virtuel...${NC}"
     source "${VENV_PATH}/bin/activate"
 fi
 
 # Détecter les conteneurs
-echo -e "\n${BLUE}📦 Détection des conteneurs Docker GNS3...${NC}"
+echo -e "\n${BLUE}Détection des conteneurs Docker GNS3...${NC}"
 
 # Récupérer les conteneurs FRR
 declare -A CONTAINERS
@@ -66,13 +66,13 @@ done < <(docker ps --format "{{.Names}}\t{{.Image}}")
 
 # Afficher les conteneurs détectés
 if [ ${#CONTAINERS[@]} -eq 0 ]; then
-    echo -e "${YELLOW}⚠️  Aucun conteneur FRR détecté!${NC}"
+    echo -e "${YELLOW}Aucun conteneur FRR détecté!${NC}"
     echo "   Vérifiez que:"
     echo "   1. GNS3 est lancé avec un projet ouvert"
     echo "   2. Les routeurs sont démarrés"
     echo "   3. Docker est accessible (docker ps)"
 else
-    echo -e "${GREEN}✅ ${#CONTAINERS[@]} conteneurs détectés:${NC}"
+    echo -e "${GREEN}${#CONTAINERS[@]} conteneurs détectés:${NC}"
     for router in "${!CONTAINERS[@]}"; do
         echo "   $router: ${CONTAINERS[$router]}"
     done
@@ -80,7 +80,7 @@ fi
 
 # Mettre à jour le fichier YAML
 if [ ${#CONTAINERS[@]} -gt 0 ]; then
-    echo -e "\n${BLUE}📝 Mise à jour de $CONFIG_FILE...${NC}"
+    echo -e "\n${BLUE}Mise à jour de $CONFIG_FILE...${NC}"
     
     UPDATED=0
     for router in "${!CONTAINERS[@]}"; do
@@ -95,14 +95,14 @@ if [ ${#CONTAINERS[@]} -gt 0 ]; then
     done
     
     if [ $UPDATED -gt 0 ]; then
-        echo -e "${GREEN}✅ Configuration mise à jour ($UPDATED routeurs)${NC}"
+        echo -e "${GREEN}Configuration mise à jour ($UPDATED routeurs)${NC}"
     else
-        echo -e "${GREEN}✅ Configuration déjà à jour${NC}"
+        echo -e "${GREEN}Configuration déjà à jour${NC}"
     fi
 fi
 
 # Lancer l'optimiseur
-echo -e "\n${BLUE}🚀 Démarrage de l'optimiseur...${NC}"
+echo -e "\n${BLUE}Démarrage de l'optimiseur...${NC}"
 echo "============================================================"
 
 cd "$SCRIPT_DIR"

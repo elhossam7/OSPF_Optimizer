@@ -29,7 +29,7 @@ def get_docker_containers():
         )
         
         if result.returncode != 0:
-            print(f"❌ Erreur lors de l'exécution de docker ps: {result.stderr}")
+            print(f"Erreur lors de l'exécution de docker ps: {result.stderr}")
             return {}
             
         containers = {}
@@ -69,13 +69,13 @@ def get_docker_containers():
         return containers
         
     except subprocess.TimeoutExpired:
-        print("❌ Timeout lors de l'exécution de docker ps")
+        print("Timeout lors de l'exécution de docker ps")
         return {}
     except FileNotFoundError:
-        print("❌ Docker n'est pas installé ou pas dans le PATH")
+        print("Docker n'est pas installé ou pas dans le PATH")
         return {}
     except Exception as e:
-        print(f"❌ Erreur: {e}")
+        print(f"Erreur: {e}")
         return {}
 
 
@@ -124,7 +124,7 @@ def update_routers_yaml(config_path: str, containers: dict) -> bool:
         
         # Afficher les modifications
         if updated_routers or updated_pcs:
-            print("\n✅ Configuration mise à jour:")
+            print("\nConfiguration mise à jour:")
             if updated_routers:
                 print("  Routeurs:")
                 for update in updated_routers:
@@ -134,18 +134,18 @@ def update_routers_yaml(config_path: str, containers: dict) -> bool:
                 for update in updated_pcs:
                     print(f"    {update}")
         else:
-            print("\n✅ Configuration déjà à jour (aucune modification nécessaire)")
+            print("\nConfiguration déjà à jour (aucune modification nécessaire)")
             
         return True
         
     except FileNotFoundError:
-        print(f"❌ Fichier de configuration non trouvé: {config_path}")
+        print(f"Fichier de configuration non trouvé: {config_path}")
         return False
     except yaml.YAMLError as e:
-        print(f"❌ Erreur de parsing YAML: {e}")
+        print(f"Erreur de parsing YAML: {e}")
         return False
     except Exception as e:
-        print(f"❌ Erreur lors de la mise à jour: {e}")
+        print(f"Erreur lors de la mise à jour: {e}")
         return False
 
 
@@ -192,16 +192,16 @@ def preserve_yaml_format(config_path: str, containers: dict) -> bool:
         if updated:
             with open(config_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            print("\n✅ Configuration mise à jour:")
+            print("\nConfiguration mise à jour:")
             for update in updates:
                 print(f"  {update}")
         else:
-            print("\n✅ Configuration déjà à jour (aucune modification nécessaire)")
+            print("\nConfiguration déjà à jour (aucune modification nécessaire)")
             
         return True
         
     except Exception as e:
-        print(f"❌ Erreur: {e}")
+        print(f"Erreur: {e}")
         return False
 
 
@@ -231,14 +231,14 @@ def start_optimizer(config_path: str, args):
     if args.strategy:
         cmd.extend(['--strategy', args.strategy])
     
-    print(f"\n🚀 Démarrage de l'optimiseur: {' '.join(cmd)}\n")
+    print(f"\nDémarrage de l'optimiseur: {' '.join(cmd)}\n")
     print("=" * 60)
     
     # Exécuter l'optimiseur
     try:
         os.execvp(sys.executable, cmd)
     except Exception as e:
-        print(f"❌ Erreur lors du démarrage: {e}")
+        print(f"Erreur lors du démarrage: {e}")
         sys.exit(1)
 
 
@@ -331,15 +331,15 @@ Exemples:
     os.chdir(script_dir)
     
     print("=" * 60)
-    print("🔍 OSPF Optimizer - Démarrage Automatique")
+    print("OSPF Optimizer - Démarrage Automatique")
     print("=" * 60)
     
     # Étape 1: Détecter les conteneurs
-    print("\n📦 Détection des conteneurs Docker GNS3...")
+    print("\nDétection des conteneurs Docker GNS3...")
     containers = get_docker_containers()
     
     if not containers:
-        print("\n⚠️  Aucun conteneur FRR détecté!")
+        print("\nAucun conteneur FRR détecté!")
         print("   Vérifiez que:")
         print("   1. GNS3 est lancé avec un projet ouvert")
         print("   2. Les routeurs sont démarrés")
@@ -350,19 +350,19 @@ Exemples:
             if response.lower() != 'o':
                 sys.exit(1)
     else:
-        print(f"\n✅ {len(containers)} conteneurs détectés:")
+        print(f"\n{len(containers)} conteneurs détectés:")
         for name, container in sorted(containers.items()):
             print(f"   {name}: {container}")
     
     # Étape 2: Mettre à jour la configuration
     if not args.no_update and containers:
-        print(f"\n📝 Mise à jour de {args.config}...")
+        print(f"\nMise à jour de {args.config}...")
         if not preserve_yaml_format(args.config, containers):
-            print("⚠️  La mise à jour a échoué, utilisation de la configuration existante")
+            print("La mise à jour a échoué, utilisation de la configuration existante")
     
     # Étape 3: Démarrer l'optimiseur (sauf si --detect-only)
     if args.detect_only:
-        print("\n✅ Détection terminée (--detect-only)")
+        print("\nDétection terminée (--detect-only)")
         sys.exit(0)
     
     start_optimizer(args.config, args)
