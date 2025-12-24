@@ -402,65 +402,247 @@ Cycle d'optimisation #1...
 
 ---
 
-## SCÉNARIO 6 : Simulation de Congestion
+## SCÉNARIO 6 : Démonstration du Changement de Route Automatique
 
-### Étape 6.1 : Ajouter de la latence sur le lien ABR1-ABR2
+> **Objectif :** Démontrer que l'outil OSPF Optimizer peut automatiquement modifier les routes entre routeurs en ajustant les coûts OSPF en fonction des conditions réseau.
 
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc add dev eth1 root netem delay 100ms
-```
+### Contexte
 
-### Étape 6.2 : Vérifier la latence
+Dans ce scénario, nous allons :
+1. Vérifier la route initiale entre Zone 1 (R1) et Zone 2 (R3)
+2. Simuler une dégradation sur le lien direct ABR1-ABR2
+3. Observer le changement de route automatique via ABR3
+4. Valider le reroutage avec traceroute
 
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 5 10.0.0.2
-```
+### Étape 6.1 : Vérifier la route initiale (AVANT)
 
-**Résultat attendu :** Latence ~100ms au lieu de <1ms
-
-### Étape 6.3 : Observer la réaction de l'optimiseur
-
-L'optimiseur devrait détecter la latence élevée (100ms > 50ms) et augmenter le coût :
-
-```
-Attention: Lien ABR1-ABR2: Latence élevée détectée (100ms > 50ms)
-  Coût actuel: 15 → Nouveau coût recommandé: 115
-
-Application des modifications...
-  ✓ ABR1/eth1: Coût modifié 15 → 115
-  ✓ ABR2/eth1: Coût modifié 15 → 115
-```
-
-### Étape 6.4 : Vérifier le changement de coût
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1" | grep Cost
-```
-
-**Résultat attendu :** `Cost: 115`
-
-### Étape 6.5 : Vérifier le reroutage OSPF
+**Afficher la table de routage OSPF sur ABR1 :**
 
 ```bash
 docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
 ```
 
-**Résultat attendu :** Le trafic vers Zone 2 passe maintenant par ABR3 au lieu de ABR1-ABR2 directement
+**Résultat attendu (routes vers Zone 2 via eth1/10.0.0.2 = lien direct ABR1-ABR2) :**
+```
+O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
+O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
+O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
+```
 
-### Étape 6.6 : Supprimer la latence simulée
+**Ping de ABR1 vers R3 pour tester la connectivité :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
+```
+
+**Résultat attendu :**
+```
+PING 10.2.1.2 (10.2.1.2): 56 data bytes
+64 bytes from 10.2.1.2: seq=0 ttl=63 time=0.8 ms
+64 bytes from 10.2.1.2: seq=1 ttl=63 time=0.6 ms
+64 bytes from 10.2.1.2: seq=2 ttl=63 time=0.5 ms
+```
+
+**Vérifier le coût actuel sur ABR1/eth1 :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
+```
+
+**Résultat attendu (chercher la ligne Cost) :**
+```
+eth1 is up
+  Internet Address 10.0.0.1/24, Broadcast 10.0.0.255, Area 0.0.0.0
+  Router ID 1.1.1.1, Network Type BROADCAST, Cost: 15
+  ...
+```
+
+### Étape 6.2 : Lancer l'optimiseur en mode surveillance
+
+```powershell
+python auto_start.py --web --port 8080 --verbose
+```
+
+Laisser l'optimiseur tourner en arrière-plan.
+
+### Étape 6.3 : Simuler une dégradation sur ABR1-ABR2
+
+**Ajouter 150ms de latence sur le lien ABR1-ABR2 :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc add dev eth1 root netem delay 150ms
+```
+
+**Vérifier que la latence est appliquée :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.0.0.2
+```
+
+**Résultat attendu :** Latence ~150ms
+
+### Étape 6.4 : Observer la réaction de l'optimiseur
+
+L'optimiseur détecte la latence élevée (150ms > seuil 50ms) et augmente automatiquement le coût :
+
+**Logs attendus dans le terminal :**
+```
+╔════════════════════════════════════════════════════════════════╗
+║              DÉTECTION D'ANOMALIE - OPTIMISATION               ║
+╚════════════════════════════════════════════════════════════════╝
+
+  Lien ABR1-ABR2 : Latence ÉLEVÉE détectée
+    Latence mesurée : 150ms (seuil : 50ms)
+    
+ Calcul du nouveau coût OSPF :
+    Coût actuel    : 15
+    Coût calculé   : 165 (base 15 + latence 150)
+    
+ Application des modifications :
+    ✓ ABR1/eth1 : Coût 15 → 165
+    ✓ ABR2/eth1 : Coût 15 → 165
+
+ OSPF recalcule les routes...
+    Route vers Zone 2 : ABR1→ABR2 (coût 165) 
+                      → ABR1→ABR3→ABR2 (coût 30) ✓ MEILLEUR
+```
+
+### Étape 6.5 : Vérifier le changement de coût (APRÈS)
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
+```
+
+**Résultat attendu (chercher la ligne Cost) :** `Cost: 165` (ou valeur calculée par l'optimiseur)
+
+### Étape 6.6 : Vérifier la nouvelle route
+
+**Afficher la table de routage OSPF sur ABR1 :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
+```
+
+**Résultat attendu (routes vers Zone 2 maintenant via ABR3) :**
+```
+O   10.0.0.0/24 [110/165] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.1.2, eth3, weight 1     ← Via ABR3 maintenant!
+O IA 10.2.1.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
+O IA 10.2.2.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
+```
+
+> **Note :** Les routes vers Zone 2 (10.2.x.x) passent maintenant par `eth3` (vers ABR3) au lieu de `eth1` (vers ABR2 direct).
+
+**Ping pour vérifier que la connectivité fonctionne toujours :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
+```
+
+**Résultat attendu (toujours fonctionnel, mais via un chemin différent) :**
+```
+PING 10.2.1.2 (10.2.1.2): 56 data bytes
+64 bytes from 10.2.1.2: seq=0 ttl=62 time=1.2 ms
+64 bytes from 10.2.1.2: seq=1 ttl=62 time=1.0 ms
+64 bytes from 10.2.1.2: seq=2 ttl=62 time=0.9 ms
+```
+
+> **Observation :** Le TTL a diminué (62 au lieu de 63) car il y a un saut supplémentaire via ABR3.
+
+### Étape 6.7 : Visualiser dans le Dashboard Web
+
+Ouvrir http://localhost:8080 et observer :
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    OSPF OPTIMIZER DASHBOARD                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ALERTE : Lien ABR1-ABR2                                      │
+│     Latence: 150ms (critique)                                    │
+│     Coût modifié: 15 → 165                                       │
+│                                                                  │
+│  TOPOLOGIE ACTIVE :                                              │
+│                                                                  │
+│       [ABR3] ←──────────────────→ [ABR2]                        │
+│          ↑          ACTIF            ↓                           │
+│          │                           │                           │
+│       [ABR1] ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ [ABR2]                         │
+│          │       PÉNALISÉ            │                           │
+│          ↓                           ↓                           │
+│     [Zone 1]                    [Zone 2]                         │
+│      R1, R2                      R3, R4                          │
+│                                                                  │
+│  HISTORIQUE DES CHANGEMENTS :                                    │
+│  ├─ 14:32:15 - ABR1-ABR2 : Latence 150ms détectée               │
+│  ├─ 14:32:16 - Coût eth1@ABR1 : 15 → 165                        │
+│  ├─ 14:32:16 - Coût eth1@ABR2 : 15 → 165                        │
+│  └─ 14:32:17 - Route recalculée via ABR3                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Étape 6.8 : Retour à la normale
+
+**Supprimer la latence simulée :**
 
 ```bash
 docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth1 root
 ```
 
-### Étape 6.7 : Attendre la récupération
+**Attendre 1-2 cycles d'optimisation (~60 secondes)**
 
-Après quelques cycles, l'optimiseur devrait détecter le retour à la normale et réduire le coût :
+**Logs attendus :**
+```
+ Lien ABR1-ABR2 : Latence normale (0.5ms < 30ms)
+   Mode RECOVERY activé
+   Coût restauré : 165 → 15
 
+OSPF recalcule les routes...
+   Route vers Zone 2 : Retour au chemin optimal ABR1→ABR2
 ```
-Lien ABR1-ABR2: Latence normale (0.5ms < 30ms)
-   Coût actuel: 115 → Nouveau coût: 15 (Recovery)
+
+### Étape 6.9 : Vérifier le retour au chemin initial
+
+**Afficher la table de routage OSPF sur ABR1 :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
 ```
+
+**Résultat attendu (retour aux routes via eth1/ABR2 direct) :**
+```
+O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
+O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
+O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
+```
+
+**Vérifier le coût restauré :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
+```
+
+**Résultat attendu :** `Cost: 15` (valeur initiale restaurée)
+
+### Résumé du Scénario 6
+
+| Phase | Action | Coût ABR1-ABR2 | Route R1→R3 |
+|-------|--------|----------------|-------------|
+| **Initial** | Aucune | 15 | R1→ABR1→ABR2→R3 |
+| **Dégradation** | +150ms latence | 15→165 | R1→ABR1→**ABR3**→ABR2→R3 |
+| **Récupération** | Latence normale | 165→15 | R1→ABR1→ABR2→R3 |
+
+> ** Conclusion :** L'OSPF Optimizer a automatiquement :
+> 1. Détecté la dégradation du lien
+> 2. Augmenté le coût OSPF pour pénaliser ce lien
+> 3. Forcé OSPF à recalculer et utiliser un chemin alternatif
+> 4. Restauré la configuration optimale une fois le problème résolu
 
 ---
 
@@ -555,250 +737,6 @@ Attention: Liens nécessitant une optimisation:
 
 [SIMULATION] Aucun changement appliqué aux routeurs
 ```
-
----
-
-## SCÉNARIO 10 : Démonstration du Changement de Route Automatique
-
-> **Objectif :** Démontrer que l'outil OSPF Optimizer peut automatiquement modifier les routes entre routeurs en ajustant les coûts OSPF en fonction des conditions réseau.
-
-### Contexte
-
-Dans ce scénario, nous allons :
-1. Vérifier la route initiale entre Zone 1 (R1) et Zone 2 (R3)
-2. Simuler une dégradation sur le lien direct ABR1-ABR2
-3. Observer le changement de route automatique via ABR3
-4. Valider le reroutage avec traceroute
-
-### Étape 10.1 : Vérifier la route initiale (AVANT)
-
-**Afficher la table de routage OSPF sur ABR1 :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
-```
-
-**Résultat attendu (routes vers Zone 2 via eth1/10.0.0.2 = lien direct ABR1-ABR2) :**
-```
-O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
-O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
-O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
-O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
-O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
-```
-
-**Ping de ABR1 vers R3 pour tester la connectivité :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
-```
-
-**Résultat attendu :**
-```
-PING 10.2.1.2 (10.2.1.2): 56 data bytes
-64 bytes from 10.2.1.2: seq=0 ttl=63 time=0.8 ms
-64 bytes from 10.2.1.2: seq=1 ttl=63 time=0.6 ms
-64 bytes from 10.2.1.2: seq=2 ttl=63 time=0.5 ms
-```
-
-**Vérifier le coût actuel sur ABR1/eth1 :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
-```
-
-**Résultat attendu (chercher la ligne Cost) :**
-```
-eth1 is up
-  Internet Address 10.0.0.1/24, Broadcast 10.0.0.255, Area 0.0.0.0
-  Router ID 1.1.1.1, Network Type BROADCAST, Cost: 15
-  ...
-```
-
-### Étape 10.2 : Lancer l'optimiseur en mode surveillance
-
-```powershell
-python auto_start.py --web --port 8080 --verbose
-```
-
-Laisser l'optimiseur tourner en arrière-plan.
-
-### Étape 10.3 : Simuler une dégradation sur ABR1-ABR2
-
-**Ajouter 150ms de latence sur le lien ABR1-ABR2 :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc add dev eth1 root netem delay 150ms
-```
-
-**Vérifier que la latence est appliquée :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.0.0.2
-```
-
-**Résultat attendu :** Latence ~150ms
-
-### Étape 10.4 : Observer la réaction de l'optimiseur
-
-L'optimiseur détecte la latence élevée (150ms > seuil 50ms) et augmente automatiquement le coût :
-
-**Logs attendus dans le terminal :**
-```
-╔════════════════════════════════════════════════════════════════╗
-║              DÉTECTION D'ANOMALIE - OPTIMISATION               ║
-╚════════════════════════════════════════════════════════════════╝
-
-⚠️  Lien ABR1-ABR2 : Latence ÉLEVÉE détectée
-    Latence mesurée : 150ms (seuil : 50ms)
-    
-📊 Calcul du nouveau coût OSPF :
-    Coût actuel    : 15
-    Coût calculé   : 165 (base 15 + latence 150)
-    
-🔧 Application des modifications :
-    ✓ ABR1/eth1 : Coût 15 → 165
-    ✓ ABR2/eth1 : Coût 15 → 165
-
-🔄 OSPF recalcule les routes...
-    Route vers Zone 2 : ABR1→ABR2 (coût 165) 
-                      → ABR1→ABR3→ABR2 (coût 30) ✓ MEILLEUR
-```
-
-### Étape 10.5 : Vérifier le changement de coût (APRÈS)
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1" | grep -i cost
-```
-
-**Résultat attendu :** `Cost: 165` (ou valeur calculée par l'optimiseur)
-
-### Étape 10.6 : Vérifier la nouvelle route
-
-**Afficher la table de routage OSPF sur ABR1 :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
-```
-
-**Résultat attendu (routes vers Zone 2 maintenant via ABR3) :**
-```
-O   10.0.0.0/24 [110/165] is directly connected, eth1, weight 1
-O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
-O   10.0.2.0/24 [110/30] via 10.0.1.2, eth3, weight 1     ← Via ABR3 maintenant!
-O IA 10.2.1.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
-O IA 10.2.2.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
-```
-
-> **Note :** Les routes vers Zone 2 (10.2.x.x) passent maintenant par `eth3` (vers ABR3) au lieu de `eth1` (vers ABR2 direct).
-
-**Ping pour vérifier que la connectivité fonctionne toujours :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
-```
-
-**Résultat attendu (toujours fonctionnel, mais via un chemin différent) :**
-```
-PING 10.2.1.2 (10.2.1.2): 56 data bytes
-64 bytes from 10.2.1.2: seq=0 ttl=62 time=1.2 ms
-64 bytes from 10.2.1.2: seq=1 ttl=62 time=1.0 ms
-64 bytes from 10.2.1.2: seq=2 ttl=62 time=0.9 ms
-```
-
-> **Observation :** Le TTL a diminué (62 au lieu de 63) car il y a un saut supplémentaire via ABR3.
-
-### Étape 10.7 : Visualiser dans le Dashboard Web
-
-Ouvrir http://localhost:8080 et observer :
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    OSPF OPTIMIZER DASHBOARD                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  🔴 ALERTE : Lien ABR1-ABR2                                      │
-│     Latence: 150ms (critique)                                    │
-│     Coût modifié: 15 → 165                                       │
-│                                                                  │
-│  TOPOLOGIE ACTIVE :                                              │
-│                                                                  │
-│       [ABR3] ←──────────────────→ [ABR2]                        │
-│          ↑          ACTIF            ↓                           │
-│          │                           │                           │
-│       [ABR1] ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ ╳ [ABR2]                         │
-│          │       PÉNALISÉ            │                           │
-│          ↓                           ↓                           │
-│     [Zone 1]                    [Zone 2]                         │
-│      R1, R2                      R3, R4                          │
-│                                                                  │
-│  HISTORIQUE DES CHANGEMENTS :                                    │
-│  ├─ 14:32:15 - ABR1-ABR2 : Latence 150ms détectée               │
-│  ├─ 14:32:16 - Coût eth1@ABR1 : 15 → 165                        │
-│  ├─ 14:32:16 - Coût eth1@ABR2 : 15 → 165                        │
-│  └─ 14:32:17 - Route recalculée via ABR3                        │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Étape 10.8 : Retour à la normale
-
-**Supprimer la latence simulée :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth1 root
-```
-
-**Attendre 1-2 cycles d'optimisation (~60 secondes)**
-
-**Logs attendus :**
-```
-✅ Lien ABR1-ABR2 : Latence normale (0.5ms < 30ms)
-   Mode RECOVERY activé
-   Coût restauré : 165 → 15
-
-🔄 OSPF recalcule les routes...
-   Route vers Zone 2 : Retour au chemin optimal ABR1→ABR2
-```
-
-### Étape 10.9 : Vérifier le retour au chemin initial
-
-**Afficher la table de routage OSPF sur ABR1 :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
-```
-
-**Résultat attendu (retour aux routes via eth1/ABR2 direct) :**
-```
-O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
-O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
-O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
-O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
-O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
-```
-
-**Vérifier le coût restauré :**
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
-```
-
-**Résultat attendu :** `Cost: 15` (valeur initiale restaurée)
-
-### Résumé du Scénario 10
-
-| Phase | Action | Coût ABR1-ABR2 | Route R1→R3 |
-|-------|--------|----------------|-------------|
-| **Initial** | Aucune | 15 | R1→ABR1→ABR2→R3 |
-| **Dégradation** | +150ms latence | 15→165 | R1→ABR1→**ABR3**→ABR2→R3 |
-| **Récupération** | Latence normale | 165→15 | R1→ABR1→ABR2→R3 |
-
-> **✅ Conclusion :** L'OSPF Optimizer a automatiquement :
-> 1. Détecté la dégradation du lien
-> 2. Augmenté le coût OSPF pour pénaliser ce lien
-> 3. Forcé OSPF à recalculer et utiliser un chemin alternatif
-> 4. Restauré la configuration optimale une fois le problème résolu
 
 ---
 
