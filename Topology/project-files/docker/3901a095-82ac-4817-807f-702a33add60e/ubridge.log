@@ -1,0 +1,6 @@
+uBridge version 0.9.19 running with libpcap version 1.10.1 (with TPACKET_V3)
+Hypervisor TCP control server started (IP localhost port 41393).
+UDP tunnel connecting from local port 10023 to IPv4 address 127.0.0.1 on port 10022
+Source NIO listener thread for bridge0 has started
+Destination NIO listener thread for bridge0 has started
+send: Input/output error

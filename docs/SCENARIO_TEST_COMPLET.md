@@ -670,47 +670,9 @@ docker exec GNS3.ABR2.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth3
 
 ---
 
-## SCÉNARIO 8 : Modification Manuelle des Coûts OSPF
+## SCÉNARIO 8 : Mode Simulation (Données Simulées)
 
-### Étape 8.1 : Augmenter le coût sur ABR1/eth1
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "
-configure terminal
-interface eth1
-ip ospf cost 50
-exit
-exit
-write memory
-"
-```
-
-### Étape 8.2 : Vérifier le changement
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1" | grep Cost
-```
-
-**Résultat attendu :** `Cost: 50`
-
-### Étape 8.3 : Remettre le coût initial
-
-```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "
-configure terminal
-interface eth1
-ip ospf cost 15
-exit
-exit
-write memory
-"
-```
-
----
-
-## SCÉNARIO 9 : Mode Simulation (Données Simulées)
-
-### Étape 9.1 : Exécution unique en mode simulation
+### Étape 8.1 : Exécution unique en mode simulation
 
 ```powershell
 python ospf_optimizer.py --simulation --once --verbose
