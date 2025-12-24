@@ -572,41 +572,48 @@ Dans ce scénario, nous allons :
 
 ### Étape 10.1 : Vérifier la route initiale (AVANT)
 
-**Afficher la route de R1 vers R3 (10.2.1.2) :**
+**Afficher la table de routage OSPF sur ABR1 :**
 
 ```bash
-docker exec GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route 10.2.1.0/24"
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
 ```
 
-**Résultat attendu (route directe via ABR1 → ABR2) :**
+**Résultat attendu (routes vers Zone 2 via eth1/10.0.0.2 = lien direct ABR1-ABR2) :**
 ```
-Routing entry for 10.2.1.0/24
-  Known via "ospf", distance 110, metric 45
-  Last update 00:15:32 ago
-  * 10.1.1.1, via eth1, weight 1
+O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
+O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
+O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Via ABR2 direct
 ```
 
-**Traceroute de R1 vers R3 :**
+**Ping de ABR1 vers R3 pour tester la connectivité :**
 
 ```bash
-docker exec GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 traceroute -n 10.2.1.2
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
 ```
 
-**Résultat attendu (chemin direct : R1 → ABR1 → ABR2 → R3) :**
+**Résultat attendu :**
 ```
-traceroute to 10.2.1.2, 30 hops max
- 1  10.1.1.1    0.5 ms   (ABR1)
- 2  10.0.0.2    0.8 ms   (ABR2)
- 3  10.2.1.2    1.1 ms   (R3)
+PING 10.2.1.2 (10.2.1.2): 56 data bytes
+64 bytes from 10.2.1.2: seq=0 ttl=63 time=0.8 ms
+64 bytes from 10.2.1.2: seq=1 ttl=63 time=0.6 ms
+64 bytes from 10.2.1.2: seq=2 ttl=63 time=0.5 ms
 ```
 
 **Vérifier le coût actuel sur ABR1/eth1 :**
 
 ```bash
-docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1" | grep -i cost
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
 ```
 
-**Résultat attendu :** `Cost: 15`
+**Résultat attendu (chercher la ligne Cost) :**
+```
+eth1 is up
+  Internet Address 10.0.0.1/24, Broadcast 10.0.0.255, Area 0.0.0.0
+  Router ID 1.1.1.1, Network Type BROADCAST, Cost: 15
+  ...
+```
 
 ### Étape 10.2 : Lancer l'optimiseur en mode surveillance
 
@@ -668,35 +675,38 @@ docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip osp
 
 ### Étape 10.6 : Vérifier la nouvelle route
 
-**Afficher la route de R1 vers R3 :**
+**Afficher la table de routage OSPF sur ABR1 :**
 
 ```bash
-docker exec GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route 10.2.1.0/24"
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
 ```
 
-**Résultat attendu (route via ABR3) :**
+**Résultat attendu (routes vers Zone 2 maintenant via ABR3) :**
 ```
-Routing entry for 10.2.1.0/24
-  Known via "ospf", distance 110, metric 60
-  Last update 00:00:15 ago
-  * 10.1.1.1, via eth1, weight 1
-    (next-hop vers ABR3)
+O   10.0.0.0/24 [110/165] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.1.2, eth3, weight 1     ← Via ABR3 maintenant!
+O IA 10.2.1.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
+O IA 10.2.2.0/24 [110/45] via 10.0.1.2, eth3, weight 1   ← Via ABR3 maintenant!
 ```
 
-**Traceroute pour confirmer le nouveau chemin :**
+> **Note :** Les routes vers Zone 2 (10.2.x.x) passent maintenant par `eth3` (vers ABR3) au lieu de `eth1` (vers ABR2 direct).
+
+**Ping pour vérifier que la connectivité fonctionne toujours :**
 
 ```bash
-docker exec GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 traceroute -n 10.2.1.2
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 ping -c 3 10.2.1.2
 ```
 
-**Résultat attendu (nouveau chemin : R1 → ABR1 → ABR3 → ABR2 → R3) :**
+**Résultat attendu (toujours fonctionnel, mais via un chemin différent) :**
 ```
-traceroute to 10.2.1.2, 30 hops max
- 1  10.1.1.1    0.5 ms   (ABR1)
- 2  10.0.1.2    0.6 ms   (ABR3)     ← Passage par ABR3
- 3  10.0.2.2    0.7 ms   (ABR2)
- 4  10.2.1.2    0.9 ms   (R3)
+PING 10.2.1.2 (10.2.1.2): 56 data bytes
+64 bytes from 10.2.1.2: seq=0 ttl=62 time=1.2 ms
+64 bytes from 10.2.1.2: seq=1 ttl=62 time=1.0 ms
+64 bytes from 10.2.1.2: seq=2 ttl=62 time=0.9 ms
 ```
+
+> **Observation :** Le TTL a diminué (62 au lieu de 63) car il y a un saut supplémentaire via ABR3.
 
 ### Étape 10.7 : Visualiser dans le Dashboard Web
 
@@ -753,17 +763,28 @@ docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 tc qdisc del dev eth1
 
 ### Étape 10.9 : Vérifier le retour au chemin initial
 
+**Afficher la table de routage OSPF sur ABR1 :**
+
 ```bash
-docker exec GNS3.R1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 traceroute -n 10.2.1.2
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip route ospf"
 ```
 
-**Résultat attendu (retour au chemin direct) :**
+**Résultat attendu (retour aux routes via eth1/ABR2 direct) :**
 ```
-traceroute to 10.2.1.2, 30 hops max
- 1  10.1.1.1    0.5 ms   (ABR1)
- 2  10.0.0.2    0.8 ms   (ABR2)     ← Retour chemin direct
- 3  10.2.1.2    1.1 ms   (R3)
+O   10.0.0.0/24 [110/15] is directly connected, eth1, weight 1
+O   10.0.1.0/24 [110/15] is directly connected, eth3, weight 1
+O   10.0.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1
+O IA 10.2.1.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
+O IA 10.2.2.0/24 [110/30] via 10.0.0.2, eth1, weight 1    ← Retour via ABR2 direct
 ```
+
+**Vérifier le coût restauré :**
+
+```bash
+docker exec GNS3.ABR1.69de82ae-4d4a-48a4-a6fd-3dfa70716b11 vtysh -c "show ip ospf interface eth1"
+```
+
+**Résultat attendu :** `Cost: 15` (valeur initiale restaurée)
 
 ### Résumé du Scénario 10
 
